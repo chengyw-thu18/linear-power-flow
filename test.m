@@ -18,17 +18,19 @@ clc;clear;
 % Define matpower constants
 define_constants;
 % Load case
-mpc = ext2int(loadcase('case33'));
+mpc = ext2int(loadcase('case118'));
 % Set all the generators online
 mpc.gen(:, GEN_STATUS) = 1; 
 gbus = mpc.gen(:, GEN_BUS);  
 % Set all the branches connected. Modify the representation of tab ratio
 % from 0 to 1 for more simple coding
 mpc.branch(:,BR_STATUS) = 1;
-mpc.branch(find(mpc.branch(:,TAP)==0),TAP) = 1;
+% mpc.branch(find(mpc.branch(:,TAP)==0),TAP) = 1;
+mpc.branch(:,TAP) = 1;
 % Initialize bus info. Same with the code in matpower function 'runpf'.
 [ref, pv, pq] = bustypes(mpc.bus, mpc.gen);
 mpc.bus([pv;pq],VA) = 0;
+mpc.bus(ref,VA) = 0;
 mpc.bus(:,VM) = 1;
 mpc.bus(gbus,VM) = mpc.gen(:, VG);
 
@@ -52,3 +54,12 @@ legend('ACPF','DLPF','FDLPF');
 xlabel('Node');
 ylabel('Voltage Magnitude');
 title('Voltage Magnitude Comparison');
+
+figure;
+n = size(mpc.bus,1);m = size(mpc.branch,1);
+plot(1:n,BusAglAC,'r-','LineWidth',0.6);hold on;grid on;
+plot(1:n,BusAglAT,'b-','LineWidth',0.6);hold on;
+legend('ACPF','DLPF');
+xlabel('Node');
+ylabel('Voltage Angle');
+title('Voltage Angle Comparison');
